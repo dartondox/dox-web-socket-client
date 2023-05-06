@@ -1,5 +1,23 @@
 # Dox Websocket client
 
+## Installation
+
+##### Via cdn
+
+```
+https://cdn.jsdelivr.net/npm/@doxdart/websocket-client/dist/index.js
+```
+
+##### Via npm or yarn
+
+```bash
+$ npm install @doxdart/websocket-client
+```
+OR
+```
+$ yarn add @doxdart/websocket-client
+```
+
 ## Usage
 
 ```js
