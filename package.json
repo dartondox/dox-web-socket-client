@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/necessarylion/dox-web-socket-client.git"
+    "url": "git+https://github.com/dartondox/dox-web-socket-client.git"
   },
   "keywords": [
     "websocket",
@@ -19,9 +19,9 @@
   "author": "Dox",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/necessarylion/dox-web-socket-client/issues"
+    "url": "https://github.com/dartondox/dox-web-socket-client/issues"
   },
-  "homepage": "https://github.com/necessarylion/dox-web-socket-client#readme",
+  "homepage": "https://github.com/dartondox/dox-web-socket-client#readme",
   "devDependencies": {
     "typescript": "^5.0.4"
   }
