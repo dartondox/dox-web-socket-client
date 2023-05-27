@@ -86,10 +86,7 @@ class App {
   }
 
   emit(event:string, message: any) {
-    if (!this.roomId) {
-      console.warn('You need to join the room to emit message')
-    }
-    this.websocket?.send(JSON.stringify({ event, message }))
+    this.websocket?.send(JSON.stringify({ event, message, room: this.roomId }))
   }
 
   joinRoom(roomId: string) {
