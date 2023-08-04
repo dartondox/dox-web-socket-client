@@ -5,36 +5,38 @@
 ##### Via cdn
 
 ```
-https://cdn.jsdelivr.net/npm/@doxdart/websocket-client/dist/index.js
+https://cdn.jsdelivr.net/npm/@dartondox/websocket/dist/index.js
 ```
 
 ##### Via npm or yarn
 
 ```bash
-$ npm install @doxdart/websocket-client
+$ npm install @dartondox/websocket
 ```
 OR
 ```
-$ yarn add @doxdart/websocket-client
+$ yarn add @dartondox/websocket
 ```
 
 ## Usage
 
 ```js
-import DoxWebsocket from '@doxdart/websocket-client';
+import DoxWebsocket from '@dartondox/websocket';
 
-const socket = DoxWebsocket('ws://localhost:3000/ws');
+const socket = DoxWebsocket('ws://127.0.0.1:3001/ws', {
+  maxRetries: 18, retryAfter: 2000 
+})
 
-socket.onOpen(() => {
-  socket.joinRoom('ABCD');
+socket.onConnected(() => {
+  console.log(socket.id)
 })
 
 socket.onError(() => {
   console.log('socket error')
 })
 
-socket.on('intro', (data) => {
-  console.log(data)
+socket.on('intro', (msg) => {
+  console.log(msg)
 })
 
 socket.onClose(() => {
@@ -42,6 +44,6 @@ socket.onClose(() => {
 })
 
 function send() {
-  socket.emit('intro', {data: 'hello'});
+  socket.emit('intro', { data: message.value })
 }
 ```
