@@ -1,30 +1,45 @@
 interface TempFunction {
-  name: string;
-  args: any[];
+  name: string
+  args: any[]
 }
 
 interface Listener {
-  event: string;
-  callback: Function;
+  event: string
+  callback: Function
+}
+
+interface DoxWebSocketConfig {
+  maxRetries: number
+  retryAfter: number
 }
 
 class App {
   private listeners: Listener[] = []
 
-  private functions: TempFunction[]= []
+  private functions: TempFunction[] = []
 
   private maxRetries = 20
 
   private totalRetry = 0
 
+  private retryAfter = 5000
+
   private url: string
+
+  private id?: string
 
   private roomId: string | undefined
 
   private websocket: WebSocket | undefined
 
-  constructor(url: string) {
+  constructor(url: string, config?: DoxWebSocketConfig) {
     this.url = url
+    if (config?.maxRetries) {
+      this.maxRetries = config.maxRetries
+    }
+    if (config?.retryAfter) {
+      this.retryAfter = config.retryAfter
+    }
     this.connect()
   }
 
@@ -36,10 +51,13 @@ class App {
     this.websocket = new WebSocket(this.url)
     this.websocket.addEventListener('message', (msg) => {
       const res = JSON.parse(msg.data)
-      const { event } = res
+      const { event, sender, message, room } = res
       const matchEvent = this.listeners.find((l) => l.event === event)
+      if(event == 'connected') {
+        this.id = message.id;
+      }
       if (matchEvent) {
-        matchEvent.callback(res.message)
+        matchEvent.callback(message, sender, room)
       }
       const allEvent = this.listeners.find((l) => l.event === '*')
       if (allEvent) {
@@ -47,8 +65,7 @@ class App {
       }
     })
     functionsToRun.forEach((fun) => {
-      const funcToCall = this[fun.name as keyof App] as Function;
-      funcToCall(...fun.args)
+      (this[fun.name as keyof App] as Function)(...fun.args)
     })
   }
 
@@ -59,10 +76,10 @@ class App {
     setTimeout(() => {
       this.totalRetry += 1
       this.connect()
-    }, 5000)
+    }, this.retryAfter)
   }
 
-  onOpen(callback : () => {}) {
+  onOpen(callback: () => {}) {
     this.websocket?.addEventListener('open', callback)
   }
 
@@ -75,17 +92,22 @@ class App {
     })
   }
 
+  onConnected(callback: () => {}) {
+    this.functions.push({ name: 'onConnected', args: [callback] })
+    this.listeners.push({ event: 'connected', callback })
+  }
+
   onClose(callback: () => {}) {
     this.functions.push({ name: 'onClose', args: [callback] })
     this.websocket?.addEventListener('close', callback)
   }
 
-  on(event : string, callback: (data : string) => {}) {
+  on(event: string, callback: (data: string) => {}) {
     this.functions.push({ name: 'on', args: [event, callback] })
     this.listeners.push({ event, callback })
   }
 
-  emit(event:string, message: any) {
+  emit(event: string, message: any) {
     this.websocket?.send(JSON.stringify({ event, message, room: this.roomId }))
   }
 
@@ -97,14 +119,15 @@ class App {
 
 declare global {
   interface Window {
-    DoxWebSocket: (url: string) => App;
+    DoxWebSocket: (url: string) => App
   }
 }
 
-const DoxWebSocket = (url: string) => {
-  return new App(url);
+const DoxWebSocket = (url: string, config? : DoxWebSocketConfig) => {
+  return new App(url, config);
 }
 
-window.DoxWebSocket = DoxWebSocket;
+window.DoxWebSocket = DoxWebSocket
 
+export { DoxWebSocketConfig }
 export default DoxWebSocket
